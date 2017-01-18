@@ -1,0 +1,110 @@
+<html>
+<head>
+<script src="jquery-git.min.js" type="text/javascript"></script>
+<script>
+(function(window, undefined) {
+
+	var _self = this;
+	this.info = {
+		status : 'start',
+		init : function() {
+			_self.info.status = 'start';
+			$("#start_stop").text("start");
+		},
+		toggle_button : function(obj) {
+			if (obj.text() == "start") {
+				obj.text("stop");
+				timer.start();
+				return;
+			}
+			
+			timer.stop();
+			obj.text("start");
+			
+		},
+		isStart : function() {
+			return (_self.info.status == "start");
+		}
+	};
+	
+	this.timer = {
+		limit :20 * 1000,
+		cur : 0,
+		countdown_visual : undefined,
+		tictok : undefined,
+		init : function(obj) {
+			_self.timer.countdown_visual = obj;
+			_self.timer.countdown_visual.text(0);
+		},
+		start : function () {
+			_self.timer.cur = _self.timer.limit;
+			_self.timer.countdown_visual.text(_self.timer.cur/1000);
+			_self.timer.tictok = setInterval(_self.timer.countdown, 10);
+			_self.player.play();
+		},
+		countdown : function () {
+			_self.timer.cur-=10;
+			
+			if (_self.timer.cur <= 0) {
+				_self.timer.countdown_visual.text(0);
+				_self.timer.completed();
+				return;
+			}
+			_self.timer.countdown_visual.text(_self.timer.cur/1000);
+		},
+		completed : function(){
+			clearInterval(_self.timer.tictok);
+			_self.player.play();
+			_self.info.init();
+		},
+		stop : function(){
+			clearInterval(_self.timer.tictok);
+			_self.player.stop();
+			_self.info.init();
+			_self.timer.countdown_visual.text(0);
+		}
+		
+	};
+	
+	this.player = {
+		obj : undefined,
+		init : function (o) {
+			_self.player.obj = o;
+		},
+		play : function() {
+			console.log(_self.player.obj);
+			_self.player.obj[0].play();
+		},
+		stop : function() {
+			_self.player.obj[0].pause();
+			_self.player.obj.prop("currentTime",0);
+		}
+	}
+	
+	window.info = info;
+	window.timer = timer;
+	window.player = player;
+})(window);
+$(document).ready(function() {
+	info.init();
+	player.init($("audio"));
+	timer.init($("#countdown_visual"));
+	
+	$("#start_stop").on("click", function() {
+		info.toggle_button($(this));
+	});
+});
+</script>
+</head>
+<body>
+<button id="start_stop" style="padding:20px;font-size:100px;">start</button>
+
+<audio controls id="boozer" style="display:none">
+  <source src="sound_button_wrong.wav" type="audio/ogg">
+  <source src="sound_button_wrong.wav" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<span id="countdown_visual" style="font-size:200px;margin-left:100px;">0</span><span style="font-size:50px;">sec.</span>
+</body>
+</html>
